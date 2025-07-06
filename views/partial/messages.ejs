@@ -1,0 +1,15 @@
+<% if (success) { %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert" 
+       style="background-color: var(--secondary-color); color: var(--primary-color);">
+    <%= success %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+<% if (errors && errors.length > 0) { %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <% errors.forEach(error => { %>
+      <p class="mb-0"><%= error.msg %></p>
+    <% }) %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>

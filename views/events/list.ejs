@@ -1,0 +1,43 @@
+<div class="row">
+  <div class="col-12">
+    <h1 class="mb-4">Events</h1>
+    <%- include('../partial/messages', { errors: errors || [], success: success || null }) %>
+    <form action="/events" method="GET" class="mb-4">
+      <div class="input-group">
+        <input
+          type="text"
+          name="q"
+          class="form-control"
+          placeholder="Search events by title or location"
+          value="<%= typeof query !== 'undefined' ? query : '' %>"
+          aria-label="Search events"
+        >
+        <button class="btn btn-primary" type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="row">
+  <% if (events && events.length > 0) { %>
+    <% events.forEach(event => { %>
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title"><a href="/events/<%= event._id %>"><%= event.title %></a></h5>
+            <p class="card-text">
+              <strong>Date:</strong> <%= new Date(event.date).toLocaleString() %><br>
+              <strong>Location:</strong> <%= event.location %><br>
+              <strong>Price:</strong> $<%= event.price.toFixed(2) %><br>
+              <strong>Available Tickets:</strong> <%= event.availableTickets %>
+            </p>
+            <a href="/events/<%= event._id %>" class="btn btn-primary">View Details</a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <div class="col-12">
+      <p>No events found.</p>
+    </div>
+  <% } %>
+</div>

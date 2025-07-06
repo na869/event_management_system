@@ -1,0 +1,37 @@
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <div class="card shadow-sm staff-only">
+      <div class="card-body">
+        <h2 class="mb-4">Feedback for <%= event.title %></h2>
+        <%- include('../../partial/messages', { errors: errors || [], success: success || null }) %>
+        <% if (feedbackList && feedbackList.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Rating</th>
+                  <th>Comment</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% feedbackList.forEach(feedback => { %>
+                  <tr>
+                    <td><%= feedback.user.username %></td>
+                    <td><%= feedback.rating %>/5</td>
+                    <td><%= feedback.comment || '-' %></td>
+                    <td><%= new Date(feedback.createdAt).toLocaleString() %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p>No feedback submitted for this event.</p>
+        <% } %>
+        <a href="/events/<%= event._id %>" class="btn btn-secondary mt-3">Back to Event</a>
+      </div>
+    </div>
+  </div>
+</div>

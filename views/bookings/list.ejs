@@ -1,0 +1,50 @@
+<div class="row mb-3">
+  <div class="col-12">
+    <h2 class="mb-4">Bookings for <%= event.title %></h2>
+    <%- include('../partial/messages', { errors: errors || [], success: success || null }) %>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <% if (bookings && bookings.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Attended</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% bookings.forEach(booking => { %>
+                  <tr>
+                    <td><%= booking.user.username %></td>
+                    <td><%= booking.quantity %></td>
+                    <td>$<%= booking.total.toFixed(2) %></td>
+                    <td><%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %></td>
+                    <td><%= booking.attended ? 'Yes' : 'No' %></td>
+                    <td>
+                      <form action="/bookings/toggle-attended/<%= booking._id %>" method="POST" style="display:inline;">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button type="submit" class="btn btn-sm btn-info">Toggle Attended</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p>No bookings found for this event.</p>
+        <% } %>
+        <a href="/events/manage/list" class="btn btn-primary mt-3">Back to Manage Events</a>
+      </div>
+    </div>
+  </div>
+</div>

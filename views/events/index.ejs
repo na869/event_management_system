@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title || 'Events - Event Management System' %></title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap');
+    
+    :root {
+      --primary-color: #000000;
+      --secondary-color: #d4af37;
+      --accent-color: #ffffff;
+      --text-color: #ffffff;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    
+    /* Styling for headings and search form */
+    h1 {
+      color: var(--secondary-color);
+    }
+    
+    .form-control {
+      background-color: #1a1a1a;
+      border: 1px solid var(--secondary-color);
+      color: var(--text-color);
+    }
+    .form-control:focus {
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 0.25rem rgba(212,175,55,0.25);
+    }
+    
+    .btn-primary {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--primary-color);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+    
+    .card {
+      background-color: #1a1a1a;
+      border: 1px solid var(--secondary-color);
+      border-radius: 1.25rem;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+      margin-bottom: 1.5rem;
+    }
+    .card-body {
+      padding: 1rem;
+    }
+    .card-title a {
+      color: var(--secondary-color);
+      text-decoration: none;
+    }
+    .card-title a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partial/header') %>
+  <main class="container mt-5">
+    <%- include('../partial/messages') %>
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-center mb-4">Events</h1>
+        <form action="/events" method="GET" class="mb-4">
+          <div class="input-group">
+            <input
+              type="text"
+              name="q"
+              class="form-control"
+              placeholder="Search events by title or location"
+              value="<%= typeof query !== 'undefined' ? query : '' %>"
+              aria-label="Search events"
+            >
+            <button class="btn btn-primary" type="submit">Search</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <% if (events && events.length > 0) { %>
+        <% events.forEach(event => { %>
+          <div class="col-md-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/events/<%= event._id %>"><%= event.title %></a>
+                </h5>
+                <p class="card-text">
+                  <strong>Date:</strong> <%= new Date(event.date).toLocaleString() %><br>
+                  <strong>Location:</strong> <%= event.location %><br>
+                  <strong>Price:</strong> $<%= event.price.toFixed(2) %><br>
+                  <strong>Available Tickets:</strong> <%= event.availableTickets %>
+                </p>
+                <a href="/events/<%= event._id %>" class="btn btn-primary">View Details</a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12">
+          <p class="text-center">No events found.</p>
+        </div>
+      <% } %>
+    </div>
+  </main>
+  <%- include('../partial/footer') %>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"
+  ></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<% layout('layouts/layout') %>
+<%- include('partial/messages') %>
+<div class="container mt-5 text-center">
+  <h2>Certificate of Participation</h2>
+  <p>This certifies that</p>
+  <h3><%= booking.user.username %></h3>
+  <p>has successfully participated in</p>
+  <h4><%= booking.event.title %></h4>
+  <p>on <%= new Date(booking.event.date).toLocaleDateString() %> at <%= booking.event.location %></p>
+  <p>Quantity: <%= booking.quantity %> ticket(s)</p>
+  <a href="/dashboard" class="btn btn-primary mt-3">Back to Dashboard</a>
+</div>

@@ -1,0 +1,90 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">Confirm Your Booking</h2>
+        <%- include('../partial/messages', { errors: errors || [], success: success || null }) %>
+        <div class="mb-3">
+          <p><strong>Event:</strong> <%= event.title %></p>
+          <p><strong>Date:</strong> <%= new Date(event.date).toLocaleString() %></p>
+          <p><strong>Location:</strong> <%= event.location %></p>
+        </div>
+
+        <% if (booking && clientSecret && stripePublishableKey) { %>
+          <div class="mb-3">
+            <p><strong>Quantity:</strong> <%= booking.quantity %></p>
+            <p><strong>Total:</strong> $<%= booking.total.toFixed(2) %></p>
+          </div>
+          <div id="payment-element" class="mb-3"></div>
+          <button id="submit" class="btn btn-primary w-100" disabled>Pay Now</button>
+          <div id="error-message" class="text-danger mt-2"></div>
+          <script src="https://js.stripe.com/v3/"></script>
+          <script nonce="<%= nonce %>">
+            document.addEventListener('DOMContentLoaded', () => {
+              try {
+                console.log('Initializing Stripe payment...');
+                const stripe = Stripe('<%= stripePublishableKey %>');
+                const elements = stripe.elements({ clientSecret: '<%= clientSecret %>' });
+                const paymentElement = elements.create('payment');
+                paymentElement.mount('#payment-element');
+
+                const submitButton = document.getElementById('submit');
+                const errorMessage = document.getElementById('error-message');
+                submitButton.disabled = false;
+
+                paymentElement.on('ready', () => {
+                  console.log('Payment element ready');
+                });
+
+                submitButton.addEventListener('click', async () => {
+                  submitButton.disabled = true;
+                  const { error } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                      return_url: `${window.location.origin}/bookings/success/<%= booking._id %>`,
+                    },
+                  });
+                  if (error) {
+                    console.error('Payment error:', error);
+                    errorMessage.textContent = error.message;
+                    submitButton.disabled = false;
+                  }
+                });
+              } catch (err) {
+                console.error('Stripe initialization error:', err);
+                document.getElementById('error-message').textContent = 'Failed to initialize payment. Please try again.';
+                document.getElementById('submit').disabled = true;
+              }
+            });
+          </script>
+        <% } else if (!stripePublishableKey) { %>
+          <p class="text-danger">Payment system is currently unavailable. Please try again later.</p>
+        <% } else { %>
+          <form action="/bookings/create/<%= event._id %>" method="POST" novalidate>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Quantity</label>
+              <input
+                type="number"
+                class="form-control <%= errors && errors.find(e => e.path === 'quantity') ? 'is-invalid' : '' %>"
+                id="quantity"
+                name="quantity"
+                min="1"
+                max="<%= event.availableTickets %>"
+                value="1"
+                required
+                aria-describedby="quantityFeedback"
+              >
+              <% if (errors && errors.find(e => e.path === 'quantity')) { %>
+                <div id="quantityFeedback" class="invalid-feedback">
+                  <%= errors.find(e => e.path === 'quantity').msg %>
+                </div>
+              <% } %>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Confirm Booking</button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

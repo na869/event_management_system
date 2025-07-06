@@ -1,0 +1,37 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm staff-only">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">Report for <%= event.title %></h2>
+        <%- include('../../partial/messages', { errors: [], success: null }) %>
+        <table class="table table-bordered">
+          <tbody>
+            <tr>
+              <th>Total Bookings</th>
+              <td><%= report.totalBookings %></td>
+            </tr>
+            <tr>
+              <th>Confirmed Bookings</th>
+              <td><%= report.confirmedBookings %></td>
+            </tr>
+            <tr>
+              <th>Total Tickets Sold</th>
+              <td><%= report.totalTickets %></td>
+            </tr>
+            <tr>
+              <th>Total Revenue</th>
+              <td>$<%= report.totalRevenue.toFixed(2) %></td>
+            </tr>
+            <tr>
+              <th>Average Ticket Price</th>
+              <td><%= report.averageTicketPrice ? '$' + report.averageTicketPrice : '-' %></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="text-center">
+          <a href="/events/manage/list" class="btn btn-primary mt-3">Back to Manage Events</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

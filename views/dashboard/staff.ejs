@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'Staff Dashboard - Event Management System' %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap');
+    
+    :root {
+      --primary-color: #000000; /* Black */
+      --secondary-color: #d4af37; /* Gold */
+      --accent-color: #2f2f2f; /* White */
+      --text-color: #ffffff; /* White */
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    
+    /* Section Title */
+    .section-title {
+      margin: 2rem 0 1rem;
+      text-align: center;
+      font-size: 1.75rem;
+      font-weight: 600;
+      border-bottom: 2px solid var(--secondary-color);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+      color: var(--secondary-color);
+    }
+    
+    /* Card Styling */
+    .card {
+      background-color: #1a1a1a;
+      border: 1px solid var(--secondary-color);
+      border-radius: 1.25rem;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+    .card-header {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      border-top-left-radius: 1.25rem;
+      border-top-right-radius: 1.25rem;
+      padding: 1.5rem;
+    }
+    .card-body {
+      padding: 2rem;
+    }
+    
+    /* Table Styling */
+    .table-responsive {
+      margin-top: 1rem;
+    }
+    /* Ensure odd rows get a subtle background for contrast */
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #222222;
+    }
+    /* Table cells use accent color */
+    .table tbody tr td {
+      color: var(--accent-color);
+    }
+    /* Table header with secondary background and primary text */
+    .table thead th {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+    }
+    
+    /* Button Hover */
+    .btn:hover {
+      transform: scale(1.03);
+      transition: transform 0.2s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partial/header') %>
+  <main class="container mt-5">
+    <!-- Global messages -->
+    <%- include('../partial/messages') %>
+    
+    <!-- Dashboard Header Summary -->
+    <section class="mb-4">
+      <div class="card text-white shadow-sm" style="background-color: var(--primary-color);">
+        <div class="card-body text-center">
+          <h5 class="card-title" style="font-family: 'Playfair Display', serif; color: var(--secondary-color);">
+            Welcome, <%= user.username %>!
+          </h5>
+          <p class="card-text" style="color: var(--accent-color);">
+            You have created <strong><%= events ? events.length : 0 %></strong> event(s).
+          </p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Your Events Table -->
+    <section class="mb-4">
+      <h2 class="section-title">Your Events</h2>
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <% if (events && events.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Sessions</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% events.forEach(event => { %>
+                    <tr>
+                      <td><%= event.title %></td>
+                      <td><%= new Date(event.date).toLocaleDateString() %></td>
+                      <td><%= event.location %></td>
+                      <td><%= event.sessions ? event.sessions.length : 0 %></td>
+                      <td>
+                        <a href="/events/<%= event._id %>" class="btn btn-sm btn-info">View</a>
+                        <a href="/events/<%= event._id %>/edit" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="/events/<%= event._id %>/sessions/create" class="btn btn-sm btn-secondary">Add Session</a>
+                        <form action="/events/<%= event._id %>/delete" method="POST" class="d-inline">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button type="submit" class="btn btn-sm btn-danger"
+                                  onclick="return confirm('Are you sure you want to delete this event?')">Delete</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p class="text-center" style="color: var(--accent-color);">No events created yet.</p>
+          <% } %>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Booking Summary (Ticket Bookings) -->
+    <section class="mb-4">
+      <h2 class="section-title">Total Bookings</h2>
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <% if (typeof regularBookings !== 'undefined' && regularBookings.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Booker Name</th>
+                    <th>Email</th>
+                    <th>Event</th>
+                    <th>Quantity</th>
+                    <th>Booking Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% regularBookings.forEach(booking => { %>
+                    <tr>
+                      <td><%= booking.user.username %></td>
+                      <td><%= booking.user.email %></td>
+                      <td><%= booking.event ? booking.event.title : 'N/A' %></td>
+                      <td><%= booking.quantity %></td>
+                      <td><%= new Date(booking.createdAt).toLocaleDateString() %></td>
+                      <td>
+                        <% if (booking.event) { %>
+                          <a href="/events/<%= booking.event._id %>" class="btn btn-sm btn-info">View Event</a>
+                        <% } else { %>
+                          <span class="text-muted">-</span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p class="text-center" style="color: var(--accent-color);">No ticket bookings available yet.</p>
+          <% } %>
+        </div>
+      </div>
+    </section>
+    
+    <!-- New Booking Requests Section -->
+    <section class="mb-4">
+      <h2 class="section-title">New Booking Requests</h2>
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <% if (typeof newRequests !== 'undefined' && newRequests.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Requester Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Event</th>
+                    <th>Request Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% newRequests.forEach(request => { %>
+                    <tr>
+                      <td><%= request.requestName %></td>
+                      <td><%= request.requestEmail %></td>
+                      <td><%= request.requestPhone %></td>
+                      <td>
+                        <% if (request.event) { %>
+                          <%= request.event.title %>
+                        <% } else { %>
+                          <%= request.customEventName || 'N/A' %>
+                        <% } %>
+                      </td>
+                      <td><%= new Date(request.createdAt).toLocaleDateString() %></td>
+                      <td>
+                        <a href="/bookings/approve/<%= request._id %>" class="btn btn-sm btn-success">Approve</a>
+                        <a href="/bookings/reject/<%= request._id %>" class="btn btn-sm btn-danger">Reject</a>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p class="text-center" style="color: var(--accent-color);">No new booking requests.</p>
+          <% } %>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Quick Actions Section -->
+    <section class="mb-4">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white text-center">
+          <h5 class="mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body text-center">
+          <a href="/events/create" class="btn btn-lg btn-success w-100">
+            <i class="bi bi-plus-circle me-2"></i>Create New Event
+          </a>
+        </div>
+      </div>
+    </section>
+    
+  </main>
+  <%- include('../partial/footer') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
